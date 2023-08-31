@@ -377,9 +377,10 @@ cdef class RawPy:
         self.unpack_thumb_called = False
         self.p = new LibRaw()
 
-        if _LIBRAW_USE_DNG_SDK:
-            self.dnghost = new dng_host()
-            self.p.set_dng_host(self.dnghost)
+#ifdef _LIBRAW_USE_DNG_SDK
+        self.dnghost = new dng_host()
+        self.p.set_dng_host(self.dnghost)
+#endif
         
     def __dealloc__(self):
         del self.p

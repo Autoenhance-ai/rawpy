@@ -105,6 +105,8 @@ else:
             break
 
 define_macros = [
+    ('qLinux', '1'),
+    ('UNIX_ENV', '1'),
     ('_HAS_LIBRAW_CONFIG_H', '1' if libraw_config_found else '0'),
     ("_LIBRAW_USE_DNG_SDK", '1' if 'DNG_SDK_INCLUDE_DIR' in os.environ else '0')
 ]
@@ -113,10 +115,13 @@ if isWindows:
     extra_compile_args += ['/DWIN32']
     
 # this must be after use_pkg_config()!
-include_dirs += [
-    numpy.get_include(),
-    os.environ.get('DNG_SDK_INCLUDE_DIR', ''),
-]
+include_dirs += [numpy.get_include()]
+
+dng_location = os.environ.get('DNG_SDK_INCLUDE_DIR', None)
+print(f'DNG SDK Location: {dng_location}')
+
+if dng_location:
+    include_dirs += [dng_location]
 
 def clone_submodules():
     if not os.path.exists('external/LibRaw/README.md'):
