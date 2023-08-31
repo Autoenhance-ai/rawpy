@@ -50,6 +50,12 @@
 #define _LIBRAW_USE_REDCINECODEC 0
 #endif
 
+#ifdef LIBRAW_USE_DNG_SDK
+#define _LIBRAW_USE_DNG_SDK 1
+#else
+#define _LIBRAW_USE_DNG_SDK 0
+#endif
+
 #ifdef LIBRAW_USE_RAWSPEED
 #define _LIBRAW_USE_RAWSPEED 1
 #else
@@ -79,3 +85,7 @@
 #else
 #define _LIBRAW_USE_6BY9RPI 0
 #endif
+
+// DNG stub for when DNG SDK.
+//
+class dng_host;

@@ -25,6 +25,10 @@ cdef extern from "Python.h":
 
 cdef extern from "def_helper.h":
     cdef int LIBRAW_XTRANS
+
+    cdef extern from 'def_helper.h':
+        cdef cppclass dng_host:
+            pass
     
     cdef int _LIBRAW_HAS_FLAGS
     # the following flags are only usable if _LIBRAW_HAS_FLAGS is 1
@@ -34,6 +38,7 @@ cdef extern from "def_helper.h":
     cdef int _LIBRAW_USE_OPENMP
     cdef int _LIBRAW_USE_LCMS
     cdef int _LIBRAW_USE_REDCINECODEC
+    cdef int _LIBRAW_USE_DNG_SDK
     cdef int _LIBRAW_USE_RAWSPEED
     cdef int _LIBRAW_USE_DEMOSAIC_PACK_GPL2
     cdef int _LIBRAW_USE_DEMOSAIC_PACK_GPL3
@@ -146,6 +151,8 @@ cdef extern from "libraw.h":
         # WF debanding 
         int   wf_debanding
         float wf_deband_treshold[4]
+        # DNG SDK 
+        int use_dngsdk
         # Raw speed 
         int use_rawspeed
         # Disable Auto-scale 
@@ -189,6 +196,7 @@ cdef extern from "libraw.h":
         unsigned int  data_size 
         unsigned char data[1] # this is the image data, no idea why [1]
 
+
 # The open_file method is overloaded on Windows and unfortunately
 # there is no better way to deal with this in Cython.
 IF UNAME_SYSNAME == "Windows":
@@ -202,6 +210,7 @@ IF UNAME_SYSNAME == "Windows":
             int unpack_thumb()
             int COLOR(int row, int col)
             int dcraw_process()
+            void set_dng_host(void *);
             libraw_processed_image_t* dcraw_make_mem_image(int *errcode)
             libraw_processed_image_t* dcraw_make_mem_thumb(int *errcode)
             void dcraw_clear_mem(libraw_processed_image_t* img)
@@ -219,6 +228,7 @@ ELSE:
             int unpack_thumb()
             int COLOR(int row, int col)
             int dcraw_process()
+            void set_dng_host(void *);
             libraw_processed_image_t* dcraw_make_mem_image(int *errcode)
             libraw_processed_image_t* dcraw_make_mem_thumb(int *errcode)
             void dcraw_clear_mem(libraw_processed_image_t* img)
@@ -234,6 +244,7 @@ if _LIBRAW_HAS_FLAGS:
              'OPENMP': bool(_LIBRAW_USE_OPENMP),
              'LCMS': bool(_LIBRAW_USE_LCMS),
              'REDCINECODEC': bool(_LIBRAW_USE_REDCINECODEC),
+             'DNG_SDK': bool(_LIBRAW_USE_DNG_SDK),
              'RAWSPEED': bool(_LIBRAW_USE_RAWSPEED),
              'DEMOSAIC_PACK_GPL2': bool(_LIBRAW_USE_DEMOSAIC_PACK_GPL2),
              'DEMOSAIC_PACK_GPL3': bool(_LIBRAW_USE_DEMOSAIC_PACK_GPL3),
@@ -357,11 +368,17 @@ cdef class RawPy:
     cdef bint unpack_called
     cdef bint unpack_thumb_called
     cdef object bytes
+
+    cdef void* dnghost;
         
     def __cinit__(self):
         self.unpack_called = False
         self.unpack_thumb_called = False
         self.p = new LibRaw()
+
+        if _LIBRAW_USE_DNG_SDK:
+            self.dnghost = new dng_host()
+            self.p.set_dng_host(self.dnghost)
         
     def __dealloc__(self):
         del self.p
