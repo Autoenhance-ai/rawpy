@@ -25,10 +25,6 @@ cdef extern from "Python.h":
 
 cdef extern from "def_helper.h":
     cdef int LIBRAW_XTRANS
-
-    cdef extern from 'def_helper.h':
-        cdef cppclass dng_host:
-            pass
     
     cdef int _LIBRAW_HAS_FLAGS
     # the following flags are only usable if _LIBRAW_HAS_FLAGS is 1
@@ -195,6 +191,11 @@ cdef extern from "libraw.h":
         ushort height, width, colors, bits
         unsigned int  data_size 
         unsigned char data[1] # this is the image data, no idea why [1]
+
+if _LIBRAW_USE_DNG_SDK:
+    cdef extern from 'dng_host.h':
+        cdef cppclass dng_host:
+            pass
 
 
 # The open_file method is overloaded on Windows and unfortunately

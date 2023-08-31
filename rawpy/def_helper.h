@@ -85,7 +85,3 @@
 #else
 #define _LIBRAW_USE_6BY9RPI 0
 #endif
-
-// DNG stub for when DNG SDK.
-//
-class dng_host;
