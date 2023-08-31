@@ -192,12 +192,6 @@ cdef extern from "libraw.h":
         unsigned int  data_size 
         unsigned char data[1] # this is the image data, no idea why [1]
 
-if _LIBRAW_USE_DNG_SDK:
-    cdef extern from 'dng_host.h':
-        cdef cppclass dng_host:
-            pass
-
-
 # The open_file method is overloaded on Windows and unfortunately
 # there is no better way to deal with this in Cython.
 IF UNAME_SYSNAME == "Windows":
@@ -236,6 +230,12 @@ ELSE:
             void free_image()
             const char* strerror(int p)
             void recycle()
+
+#ifdef _LIBRAW_USE_DNG_SDK
+    cdef extern from 'dng_host.h':
+        cdef cppclass dng_host:
+            pass
+#endif
 
 libraw_version = (LIBRAW_MAJOR_VERSION, LIBRAW_MINOR_VERSION, LIBRAW_PATCH_VERSION)
 

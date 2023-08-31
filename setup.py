@@ -104,13 +104,19 @@ else:
             libraw_config_found = True
             break
 
-define_macros = [('_HAS_LIBRAW_CONFIG_H', '1' if libraw_config_found else '0')]
+define_macros = [
+    ('_HAS_LIBRAW_CONFIG_H', '1' if libraw_config_found else '0'),
+    ("_LIBRAW_USE_DNG_SDK", '1' if 'DNG_SDK_INCLUDE_DIR' in os.environ else '0')
+]
 
 if isWindows:
     extra_compile_args += ['/DWIN32']
     
 # this must be after use_pkg_config()!
-include_dirs += [numpy.get_include()]
+include_dirs += [
+    numpy.get_include(),
+    os.environ.get('DNG_SDK_INCLUDE_DIR', ''),
+]
 
 def clone_submodules():
     if not os.path.exists('external/LibRaw/README.md'):
@@ -278,6 +284,7 @@ extensions = cythonize([Extension("rawpy._rawpy",
               define_macros=define_macros,
               extra_compile_args=extra_compile_args,
               extra_link_args=extra_link_args,
+          
              )])
 
 # make __version__ available (https://stackoverflow.com/a/16084844)
