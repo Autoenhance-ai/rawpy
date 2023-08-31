@@ -121,7 +121,9 @@ dng_location = os.environ.get('DNG_SDK_INCLUDE_DIR', None)
 print(f'DNG SDK Location: {dng_location}')
 
 if dng_location:
-    include_dirs += [dng_location]
+    include_dirs += [dng_location + '/source']
+    library_dirs += [dng_location + '/build']
+    libraries += ['dng_sdk']
 
 def clone_submodules():
     if not os.path.exists('external/LibRaw/README.md'):
