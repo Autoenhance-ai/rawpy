@@ -230,12 +230,10 @@ ELSE:
             void free_image()
             const char* strerror(int p)
             void recycle()
-
-#ifdef _LIBRAW_USE_DNG_SDK
+            
     cdef extern from 'dng_host.h':
         cdef cppclass dng_host:
             pass
-#endif
 
 libraw_version = (LIBRAW_MAJOR_VERSION, LIBRAW_MINOR_VERSION, LIBRAW_PATCH_VERSION)
 
@@ -377,10 +375,8 @@ cdef class RawPy:
         self.unpack_thumb_called = False
         self.p = new LibRaw()
 
-#ifdef _LIBRAW_USE_DNG_SDK
         self.dnghost = new dng_host()
         self.p.set_dng_host(self.dnghost)
-#endif
         
     def __dealloc__(self):
         del self.p
